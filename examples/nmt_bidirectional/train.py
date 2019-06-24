@@ -4,6 +4,8 @@ from tensorflow.python.keras.utils import to_categorical
 import numpy as np
 import os, sys
 
+import tensorflow as tf
+
 project_path = os.path.sep.join(os.path.abspath(__file__).split(os.path.sep)[:-3])
 if project_path not in sys.path:
     sys.path.append(project_path)
@@ -16,7 +18,7 @@ from examples.utils.logger import get_logger
 base_dir = os.path.sep.join(os.path.abspath(__file__).split(os.path.sep)[:-3])
 logger = get_logger("examples.nmt_bidirectional.train", os.path.join(base_dir, 'logs'))
 
-batch_size = 64
+batch_size = 128
 hidden_size = 96
 en_timesteps, fr_timesteps = 20, 20
 
@@ -24,11 +26,11 @@ en_timesteps, fr_timesteps = 20, 20
 def get_data(train_size, random_seed=100):
 
     """ Getting randomly shuffled training / testing data """
-    en_text = read_data(os.path.join(project_path, 'data', 'small_vocab_en.txt'))
-    fr_text = read_data(os.path.join(project_path, 'data', 'small_vocab_fr.txt'))
+    en_text = read_data(os.path.join(project_path, 'data', 'texts_noisy.txt'))
+    fr_text = read_data(os.path.join(project_path, 'data', 'texts.txt'))
     logger.info('Length of text: {}'.format(len(en_text)))
 
-    fr_text = ['sos ' + sent[:-1] + 'eos' if sent.endswith('.') else 'sos ' + sent + ' eos' for sent in fr_text]
+    fr_text = ['£ ' + sent[:-1] + 'eos' if sent.endswith('.') else '£ ' + sent + ' eos' for sent in fr_text]
 
     np.random.seed(random_seed)
     inds = np.arange(len(en_text))
@@ -78,6 +80,14 @@ def train(full_model, en_seq, fr_seq, batch_size, n_epochs=10):
                                     batch_size=batch_size, verbose=0)
 
             losses.append(l)
+
+            if (bi / batch_size) % 100 == 0:
+                logger.info("Loss in iteration {}: {}".format(ep + 1, l))
+                """ Save model """
+                if not os.path.exists('h5.models'):
+                    os.mkdir(os.path.join('h5.models'))
+                full_model.save(os.path.join('h5.models', 'nmt.h5'))
+
         if (ep + 1) % 1 == 0:
             logger.info("Loss in epoch {}: {}".format(ep + 1, np.mean(losses)))
 
@@ -93,7 +103,7 @@ def infer_nmt(encoder_model, decoder_model, test_en_seq, en_vsize, fr_vsize):
     :return:
     """
 
-    test_fr_seq = sents2sequences(fr_tokenizer, ['sos'], fr_vsize)
+    test_fr_seq = sents2sequences(fr_tokenizer, ['£'], fr_vsize)
     test_en_onehot_seq = to_categorical(test_en_seq, num_classes=en_vsize)
     test_fr_onehot_seq = np.expand_dims(to_categorical(test_fr_seq, num_classes=fr_vsize), 1)
 
@@ -103,6 +113,9 @@ def infer_nmt(encoder_model, decoder_model, test_en_seq, en_vsize, fr_vsize):
     fr_text = ''
 
     for i in range(fr_timesteps):
+        print(str(test_fr_onehot_seq.shape))
+        print(str(enc_outs.shape))
+        print(str(dec_state.shape))
 
         dec_out, attention, dec_state = decoder_model.predict(
             [enc_outs, dec_state, test_fr_onehot_seq])
@@ -124,15 +137,15 @@ if __name__ == '__main__':
 
     """ Hyperparameters """
 
-    train_size = 100000 if not debug else 10000
+    train_size = 1000000 if not debug else 10000
     filename = ''
     tr_en_text, tr_fr_text, ts_en_text, ts_fr_text = get_data(train_size=train_size)
 
     """ Defining tokenizers """
-    en_tokenizer = keras.preprocessing.text.Tokenizer(oov_token='UNK')
+    en_tokenizer = keras.preprocessing.text.Tokenizer(oov_token='UNK', char_level=True)
     en_tokenizer.fit_on_texts(tr_en_text)
 
-    fr_tokenizer = keras.preprocessing.text.Tokenizer(oov_token='UNK')
+    fr_tokenizer = keras.preprocessing.text.Tokenizer(oov_token='UNK', char_level=True)
     fr_tokenizer.fit_on_texts(tr_fr_text)
 
     """ Getting preprocessed data """
@@ -147,13 +160,14 @@ if __name__ == '__main__':
         en_timesteps=en_timesteps, fr_timesteps=fr_timesteps,
         en_vsize=en_vsize, fr_vsize=fr_vsize)
 
+    from tensorflow.keras.models import load_model
+    from layers.attention import AttentionLayer
+
+    full_model = load_model(os.path.join('h5.models', 'nmt.h5'), custom_objects={'AttentionLayer': AttentionLayer})
+
     n_epochs = 10 if not debug else 3
     train(full_model, en_seq, fr_seq, batch_size, n_epochs)
 
-    """ Save model """
-    if not os.path.exists(os.path.join('..', 'h5.models')):
-        os.mkdir(os.path.join('..', 'h5.models'))
-    full_model.save(os.path.join('..', 'h5.models', 'nmt.h5'))
 
     """ Index2word """
     en_index2word = dict(zip(en_tokenizer.word_index.values(), en_tokenizer.word_index.keys()))
