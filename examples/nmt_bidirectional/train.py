@@ -127,7 +127,7 @@ def infer_nmt(encoder_model, decoder_model, test_en_seq, en_vsize, fr_vsize):
         test_fr_onehot_seq = np.expand_dims(to_categorical(test_fr_seq, num_classes=fr_vsize), 1)
 
         attention_weights.append((dec_ind, attention))
-        fr_text += fr_index2word[dec_ind] #+ ' '
+        fr_text += fr_index2word[dec_ind] + ' '
 
     return fr_text, attention_weights
 
@@ -165,7 +165,7 @@ if __name__ == '__main__':
 
     full_model = load_model(os.path.join('h5.models', 'nmt.h5'), custom_objects={'AttentionLayer': AttentionLayer})
 
-    n_epochs = 3 if not debug else 3
+    n_epochs = 1 if not debug else 3
     train(full_model, en_seq, fr_seq, batch_size, n_epochs)
 
 
