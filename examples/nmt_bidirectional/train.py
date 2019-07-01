@@ -113,9 +113,9 @@ def infer_nmt(encoder_model, decoder_model, test_en_seq, en_vsize, fr_vsize):
     fr_text = ''
 
     for i in range(fr_timesteps):
-        print(str(test_fr_onehot_seq.shape))
-        print(str(enc_outs.shape))
-        print(str(dec_state.shape))
+        #print(str(test_fr_onehot_seq.shape))
+        #print(str(enc_outs.shape))
+        #print(str(dec_state.shape))
 
         dec_out, attention, dec_state = decoder_model.predict(
             [enc_outs, dec_state, test_fr_onehot_seq])
@@ -163,7 +163,7 @@ if __name__ == '__main__':
     from tensorflow.keras.models import load_model
     from layers.attention import AttentionLayer
 
-    #full_model = load_model(os.path.join('h5.models', 'nmt.h5'), custom_objects={'AttentionLayer': AttentionLayer})
+    full_model = load_model(os.path.join('h5.models', 'nmt.h5'), custom_objects={'AttentionLayer': AttentionLayer})
 
     n_epochs = 3 if not debug else 3
     train(full_model, en_seq, fr_seq, batch_size, n_epochs)
