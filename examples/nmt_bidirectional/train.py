@@ -160,9 +160,10 @@ if __name__ == '__main__':
         en_timesteps=en_timesteps, fr_timesteps=fr_timesteps,
         en_vsize=en_vsize, fr_vsize=fr_vsize)
 
+    full_model.load_weights(os.path.join('h5.models', 'nmt.h5'))
+
     from tensorflow.keras.models import load_model
     from layers.attention import AttentionLayer
-
     #full_model = load_model(os.path.join('h5.models', 'nmt.h5'), custom_objects={'AttentionLayer': AttentionLayer})
 
     n_epochs = 1 if not debug else 3
