@@ -127,7 +127,7 @@ def infer_nmt(encoder_model, decoder_model, test_en_seq, en_vsize, fr_vsize):
         test_fr_onehot_seq = np.expand_dims(to_categorical(test_fr_seq, num_classes=fr_vsize), 1)
 
         attention_weights.append((dec_ind, attention))
-        fr_text += fr_index2word[dec_ind] #+ ' '
+        fr_text += fr_index2word[dec_ind] + ' '
 
     return fr_text, attention_weights
 
