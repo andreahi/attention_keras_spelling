@@ -30,7 +30,7 @@ def get_data(train_size, random_seed=100):
     fr_text = read_data(os.path.join(project_path, 'data', 'texts.txt'))
     logger.info('Length of text: {}'.format(len(en_text)))
 
-    fr_text = ['£ ' + sent[:-1] + 'eos' if sent.endswith('.') else '£ ' + sent + ' eos' for sent in fr_text]
+    fr_text = ['£ ' + sent[:-1] + '#' if sent.endswith('.') else '£ ' + sent + ' #' for sent in fr_text]
 
     np.random.seed(random_seed)
     inds = np.arange(len(en_text))
