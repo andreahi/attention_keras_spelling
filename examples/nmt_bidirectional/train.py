@@ -163,7 +163,7 @@ if __name__ == '__main__':
     from tensorflow.keras.models import load_model
     from layers.attention import AttentionLayer
 
-    full_model = load_model(os.path.join('h5.models', 'nmt.h5'), custom_objects={'AttentionLayer': AttentionLayer})
+    #full_model = load_model(os.path.join('h5.models', 'nmt.h5'), custom_objects={'AttentionLayer': AttentionLayer})
 
     n_epochs = 1 if not debug else 3
     train(full_model, en_seq, fr_seq, batch_size, n_epochs)
