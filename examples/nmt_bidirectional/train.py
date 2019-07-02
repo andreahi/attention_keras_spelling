@@ -160,7 +160,7 @@ if __name__ == '__main__':
         en_timesteps=en_timesteps, fr_timesteps=fr_timesteps,
         en_vsize=en_vsize, fr_vsize=fr_vsize)
 
-    #full_model.load_weights(os.path.join('h5.models', 'nmt.h5'))
+    full_model.load_weights(os.path.join('h5.models', 'nmt.h5'))
 
     from tensorflow.keras.models import load_model
     from layers.attention import AttentionLayer
