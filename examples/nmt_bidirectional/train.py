@@ -18,7 +18,7 @@ from examples.utils.logger import get_logger
 base_dir = os.path.sep.join(os.path.abspath(__file__).split(os.path.sep)[:-3])
 logger = get_logger("examples.nmt_bidirectional.train", os.path.join(base_dir, 'logs'))
 
-batch_size = 128
+batch_size = 64
 hidden_size = 1024
 en_timesteps, fr_timesteps = 70, 70
 
