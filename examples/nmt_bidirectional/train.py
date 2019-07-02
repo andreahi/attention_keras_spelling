@@ -173,6 +173,7 @@ if __name__ == '__main__':
     """ Index2word """
     en_index2word = dict(zip(en_tokenizer.word_index.values(), en_tokenizer.word_index.keys()))
     fr_index2word = dict(zip(fr_tokenizer.word_index.values(), fr_tokenizer.word_index.keys()))
+    print("en_index2word: " + str(en_index2word))
     print("fr_index2word: " + str(fr_index2word))
 
     """ Inferring with trained model """
