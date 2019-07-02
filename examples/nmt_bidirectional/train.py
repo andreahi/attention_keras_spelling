@@ -20,7 +20,7 @@ logger = get_logger("examples.nmt_bidirectional.train", os.path.join(base_dir, '
 
 batch_size = 128
 hidden_size = 512
-en_timesteps, fr_timesteps = 20, 20
+en_timesteps, fr_timesteps = 70, 70
 
 
 def get_data(train_size, random_seed=100):
