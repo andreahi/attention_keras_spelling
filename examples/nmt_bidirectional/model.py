@@ -1,5 +1,6 @@
 from tensorflow.python.keras.layers import Input, GRU, Dense, Concatenate, TimeDistributed, Bidirectional
 from tensorflow.python.keras.models import Model
+from tensorflow.python.keras.optimizers import Adam
 from layers.attention import AttentionLayer
 
 
@@ -36,9 +37,11 @@ def define_nmt(hidden_size, batch_size, en_timesteps, en_vsize, fr_timesteps, fr
     dense_time = TimeDistributed(dense, name='time_distributed_layer')
     decoder_pred = dense_time(decoder_concat_input)
 
+    optimizer = Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+
     # Full model
     full_model = Model(inputs=[encoder_inputs, decoder_inputs], outputs=decoder_pred)
-    full_model.compile(optimizer='adam', loss='categorical_crossentropy')
+    full_model.compile(optimizer=optimizer, loss='categorical_crossentropy')
 
     full_model.summary()
 
