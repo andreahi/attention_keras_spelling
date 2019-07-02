@@ -18,7 +18,7 @@ from examples.utils.logger import get_logger
 base_dir = os.path.sep.join(os.path.abspath(__file__).split(os.path.sep)[:-3])
 logger = get_logger("examples.nmt_bidirectional.train", os.path.join(base_dir, 'logs'))
 
-batch_size = 128
+batch_size = 512
 hidden_size = 512
 en_timesteps, fr_timesteps = 70, 70
 
@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
     """ Hyperparameters """
 
-    train_size = 10000000 if not debug else 200000
+    train_size = 10000000 if not debug else 1000000
     filename = ''
     tr_en_text, tr_fr_text, ts_en_text, ts_fr_text = get_data(train_size=train_size)
 
