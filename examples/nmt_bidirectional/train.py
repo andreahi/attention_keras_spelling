@@ -166,7 +166,7 @@ if __name__ == '__main__':
     from layers.attention import AttentionLayer
     #full_model = load_model(os.path.join('h5.models', 'nmt.h5'), custom_objects={'AttentionLayer': AttentionLayer})
 
-    n_epochs = 10 if not debug else 1
+    n_epochs = 10 if not debug else 10
     train(full_model, en_seq, fr_seq, batch_size, n_epochs)
 
 
