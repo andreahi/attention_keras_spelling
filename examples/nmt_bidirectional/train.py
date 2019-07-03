@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
     """ Hyperparameters """
 
-    train_size = 10000000 if not debug else 1000000
+    train_size = 10000000 if not debug else 10000
     filename = ''
     tr_en_text, tr_fr_text, ts_en_text, ts_fr_text = get_data(train_size=train_size)
 
@@ -166,7 +166,7 @@ if __name__ == '__main__':
     from layers.attention import AttentionLayer
     #full_model = load_model(os.path.join('h5.models', 'nmt.h5'), custom_objects={'AttentionLayer': AttentionLayer})
 
-    n_epochs = 10 if not debug else 10
+    n_epochs = 10 if not debug else 1
     train(full_model, en_seq, fr_seq, batch_size, n_epochs)
 
 
