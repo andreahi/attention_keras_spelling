@@ -64,32 +64,28 @@ def preprocess_data(en_tokenizer, fr_tokenizer, en_text, fr_text, en_timesteps, 
     return en_seq, fr_seq
 
 
-def train(full_model, en_seq, fr_seq, batch_size, n_epochs=10):
+def train(full_model, en_seq, fr_seq, batch_size):
     """ Training the model """
 
-    for ep in range(n_epochs):
-        losses = []
-        for bi in range(0, en_seq.shape[0] - batch_size, batch_size):
+    for bi in range(0, en_seq.shape[0] - batch_size, batch_size):
 
-            en_onehot_seq = to_categorical(en_seq[bi:bi + batch_size, :], num_classes=en_vsize)
-            fr_onehot_seq = to_categorical(fr_seq[bi:bi + batch_size, :], num_classes=fr_vsize)
+        en_onehot_seq = to_categorical(en_seq[bi:bi + batch_size, :], num_classes=en_vsize)
+        fr_onehot_seq = to_categorical(fr_seq[bi:bi + batch_size, :], num_classes=fr_vsize)
 
-            full_model.train_on_batch([en_onehot_seq, fr_onehot_seq[:, :-1, :]], fr_onehot_seq[:, 1:, :])
+        full_model.train_on_batch([en_onehot_seq, fr_onehot_seq[:, :-1, :]], fr_onehot_seq[:, 1:, :])
 
-            l = full_model.evaluate([en_onehot_seq, fr_onehot_seq[:, :-1, :]], fr_onehot_seq[:, 1:, :],
-                                    batch_size=batch_size, verbose=0)
+        l = full_model.evaluate([en_onehot_seq, fr_onehot_seq[:, :-1, :]], fr_onehot_seq[:, 1:, :],
+                                batch_size=batch_size, verbose=0)
 
-            losses.append(l)
 
-            if (bi / batch_size) % 100 == 0:
-                logger.info("Loss in iteration {}: {}".format(ep + 1, l))
-                """ Save model """
-                if not os.path.exists('h5.models'):
-                    os.mkdir(os.path.join('h5.models'))
-                full_model.save(os.path.join('h5.models', 'nmt.h5'))
+        if (bi / batch_size) % 100 == 0:
+            logger.info("Loss in iteration {}: {}".format(ep + 1, l))
+            """ Save model """
+            if not os.path.exists('h5.models'):
+                os.mkdir(os.path.join('h5.models'))
+            full_model.save(os.path.join('h5.models', 'nmt.h5'))
 
-        if (ep + 1) % 1 == 0:
-            logger.info("Loss in epoch {}: {}".format(ep + 1, np.mean(losses)))
+
 
 
 def infer_nmt(encoder_model, decoder_model, test_en_seq, en_vsize, fr_vsize):
@@ -166,8 +162,7 @@ if __name__ == '__main__':
     from layers.attention import AttentionLayer
     #full_model = load_model(os.path.join('h5.models', 'nmt.h5'), custom_objects={'AttentionLayer': AttentionLayer})
 
-    n_epochs = 10 if not debug else 1
-    train(full_model, en_seq, fr_seq, batch_size, n_epochs)
+    n_epochs = 10 if not debug else 10
 
 
     """ Index2word """
@@ -176,20 +171,25 @@ if __name__ == '__main__':
     print("en_index2word: " + str(en_index2word))
     print("fr_index2word: " + str(fr_index2word))
 
-    """ Inferring with trained model """
 
-    np.random.seed(100)
-    rand_test_ids = np.random.randint(0, len(ts_en_text), size=10)
-    for rid in rand_test_ids:
-        test_en = ts_en_text[rid]
-        logger.info('\nTranslating: {}'.format(test_en))
+    for ep in range(n_epochs):
+        train(full_model, en_seq, fr_seq, batch_size)
 
-        test_en_seq = sents2sequences(en_tokenizer, [test_en], pad_length=en_timesteps)
-        test_fr, attn_weights = infer_nmt(
-            encoder_model=infer_enc_model, decoder_model=infer_dec_model,
-            test_en_seq=test_en_seq, en_vsize=en_vsize, fr_vsize=fr_vsize)
-        logger.info('\tFrench: {}'.format(test_fr))
 
-        """ Attention plotting """
-        plot_attention_weights(test_en_seq, attn_weights, en_index2word, fr_index2word,
-                               base_dir=base_dir, filename='attention_{}.png'.format(rid))
+        """ Inferring with trained model """
+
+        np.random.seed(100)
+        rand_test_ids = np.random.randint(0, len(ts_en_text), size=10)
+        for rid in rand_test_ids:
+            test_en = ts_en_text[rid]
+            logger.info('\nTranslating: {}'.format(test_en))
+
+            test_en_seq = sents2sequences(en_tokenizer, [test_en], pad_length=en_timesteps)
+            test_fr, attn_weights = infer_nmt(
+                encoder_model=infer_enc_model, decoder_model=infer_dec_model,
+                test_en_seq=test_en_seq, en_vsize=en_vsize, fr_vsize=fr_vsize)
+            logger.info('\tFrench: {}'.format(test_fr))
+
+            """ Attention plotting """
+            plot_attention_weights(test_en_seq, attn_weights, en_index2word, fr_index2word,
+                                   base_dir=base_dir, filename='attention_{}.png'.format(rid))
