@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
     """ Hyperparameters """
 
-    train_size = 10000000 if not debug else 10000
+    train_size = 10000000 if not debug else 100000
     filename = ''
     tr_en_text, tr_fr_text, ts_en_text, ts_fr_text = get_data(train_size=train_size)
 
