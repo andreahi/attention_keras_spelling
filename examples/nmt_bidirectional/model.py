@@ -17,10 +17,8 @@ def define_nmt(hidden_size, batch_size, en_timesteps, en_vsize, fr_timesteps, fr
         decoder_inputs = Input(shape=(fr_timesteps - 1, fr_vsize), name='decoder_inputs')
 
     # Encoder GRU
-    encoder_gru1 = Bidirectional(GRU(hidden_size, return_sequences=True, return_state=True, name='encoder_gru1'), name='bidirectional_encoder1')
-    encoder_gru2 = Bidirectional(GRU(hidden_size, return_sequences=True, return_state=True, name='encoder_gru2'), name='bidirectional_encoder2')
-
-    encoder_out, encoder_fwd_state, encoder_back_state = encoder_gru2(encoder_gru1(encoder_inputs))
+    encoder_gru = Bidirectional(GRU(hidden_size, return_sequences=True, return_state=True, name='encoder_gru'), name='bidirectional_encoder')
+    encoder_out, encoder_fwd_state, encoder_back_state = encoder_gru(encoder_inputs)
 
     # Set up the decoder GRU, using `encoder_states` as initial state.
     decoder_gru = GRU(hidden_size*2, return_sequences=True, return_state=True, name='decoder_gru')
@@ -53,7 +51,7 @@ def define_nmt(hidden_size, batch_size, en_timesteps, en_vsize, fr_timesteps, fr
 
     """ Encoder (Inference) model """
     encoder_inf_inputs = Input(batch_shape=(batch_size, en_timesteps, en_vsize), name='encoder_inf_inputs')
-    encoder_inf_out, encoder_inf_fwd_state, encoder_inf_back_state = encoder_gru2(encoder_gru1(encoder_inf_inputs))
+    encoder_inf_out, encoder_inf_fwd_state, encoder_inf_back_state = encoder_gru(encoder_inf_inputs)
     encoder_model = Model(inputs=encoder_inf_inputs, outputs=[encoder_inf_out, encoder_inf_fwd_state, encoder_inf_back_state])
 
     """ Decoder (Inference) model """
