@@ -10,7 +10,7 @@ def define_nmt(hidden_size, batch_size, en_timesteps, en_vsize, fr_timesteps, fr
     # Define an input sequence and process it.
     if batch_size:
         encoder_inputs = Input(batch_shape=(batch_size, en_timesteps, en_vsize), name='encoder_inputs')
-        decoder_inputs = Embedding(en_vsize, 100, embeddings_initializer='uniform', input_length=70, name='decoder_inputs')
+        decoder_inputs = Embedding(fr_vsize, 100, embeddings_initializer='uniform', name='decoder_inputs')
         #decoder_inputs = Input(batch_shape=(batch_size, fr_timesteps - 1, fr_vsize), name='decoder_inputs')
     else:
         encoder_inputs = Input(shape=(en_timesteps, en_vsize), name='encoder_inputs')
